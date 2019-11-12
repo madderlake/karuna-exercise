@@ -9,18 +9,40 @@ class Message extends Component {
       //conv: {},
       //meta: {},
       //messages: [],
-      hideForm: true,
-      replies: []
+      showForm: false,
+      replies: {
+        reply: {
+          id: "",
+          date: "",
+          body: ""
+        }
+      }
     };
   }
+
   showReplyForm = e => {
     this.setState({
-      hideForm: false
+      showForm: true
     });
     //   this.hideReplyForms(e);
     //   const target = e.target;
     //   const replyForm = target.nextSibling;
     //   replyForm.classList.remove("d-none");
+  };
+  handleSubmitForm = e => {
+    e.preventDefault();
+    const reply = {};
+    // const date = this.dateTime.value;
+    // //const msgid = this.msgId.current;
+    // const rplybody = this.replyBody.current;
+    // reply.date = date.value;
+    // reply.body = rplybody.value;
+    // reply.id = this.msgId.current.value;
+    this.setState({
+      replies: [...this.state.replies, reply]
+    });
+    //this.hideReplyForms(e);
+    console.log(this.state.replies);
   };
 
   componentDidMount() {}
@@ -52,7 +74,7 @@ class Message extends Component {
         </button>
         <form
           className={`reply-form clearfix ${
-            this.state.hideForm ? "d-none" : ""
+            !this.state.showForm ? "d-none" : ""
           }`}
           onSubmit={this.handleSubmitForm}
         >
@@ -68,7 +90,7 @@ class Message extends Component {
           <input
             name="dateTime"
             type="hidden"
-            value={new Date()}
+            value={formatDateTime(new Date())}
             ref={this.dateTime}
           />
           <input

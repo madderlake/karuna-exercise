@@ -87,7 +87,7 @@ class MessageList extends Component {
         <h1>Conversation with {this.state.conv.name}</h1>
         {this.state.messages.map((message, idx) => {
           return (
-            <Message message={message} index={idx} />
+            <Message message={message} key={idx} />
             //   <div
             //     className={`message-block my-3 d-block ${message.direction}`}
             //     key={`message-${idx}`}
