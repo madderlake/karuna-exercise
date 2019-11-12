@@ -31,7 +31,6 @@ class Message extends Component {
   };
   handleSubmitForm = e => {
     e.preventDefault();
-    const reply = {};
     // const date = this.dateTime.value;
     // //const msgid = this.msgId.current;
     // const rplybody = this.replyBody.current;
@@ -39,7 +38,7 @@ class Message extends Component {
     // reply.body = rplybody.value;
     // reply.id = this.msgId.current.value;
     this.setState({
-      replies: [...this.state.replies, reply]
+      replies: [...this.state.replies.reply, reply.body]
     });
     //this.hideReplyForms(e);
     console.log(this.state.replies);
