@@ -1,70 +1,55 @@
 import React, { Component } from "react";
+import io from "socket.io-client";
 import { formatDateTime } from "../utils.js";
 
 class Message extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
-      //conv: {},
-      //meta: {},
-      //messages: [],
       showForm: false,
-      replies: {
-        reply: {
-          id: "",
-          date: "",
-          body: ""
-        }
+      reply: {},
+      replylist: []
+    };
+
+    const addMessage = data => {
+      this.setState({
+        replylist: [...this.state.replylist, data]
+      });
+      console.log(this.state.replylist);
+    };
+
+    this.socket = io("localhost:8083");
+    this.socket.on("RECEIVE_REPLY", function(data) {
+      addMessage(data);
+    });
+
+    this.sendMessage = ev => {
+      ev.preventDefault();
+      if (this.state.reply) {
+        this.socket.emit("SEND_REPLY", {
+          reply: this.state.reply
+        });
+        // this.setState({
+        //   reply: ""
+        // });
+        console.log(this.state.reply);
       }
     };
-    this.dateTime = React.createRef();
-    this.msgId = React.createRef();
-  }
 
-  showReplyForm = e => {
-    this.setState({
-      showForm: true
-    });
-    //   //   this.hideReplyForms(e);
-    //   //   const target = e.target;
-    //   //   const replyForm = target.nextSibling;
-    //   //   replyForm.classList.remove("d-none");
-  };
-  handleSubmitForm = e => {
-    e.preventDefault();
+    this.showReplyForm = e => {
+      this.setState({
+        showForm: true
+      });
+    };
+  } //end constructor
 
-    //   // const date = this.dateTime.value;
-    //   // //const msgid = this.msgId.current;
-    //   // const rplybody = this.replyBody.current;
-    const date = this.dateTime.current.value;
-    const id = this.msgId.current.value;
-    //   //reply.body = rplybody.value;
-    //   // reply.id = this.msgId.current.value;
-    this.setState({
-      //replies: [...this.state.replies.reply, reply.body];
-    });
-    //   //this.hideReplyForms(e);
-    //   //console.log(this.state.replies);
-    console.log(id);
-  };
-
-  handleInputChange(newPartialInput) {
-    this.setState(state => ({
-      ...state,
-      replies: {
-        ...state.replies.reply,
-        ...newPartialInput
-      }
-    }));
+  componentDidMount() {
     console.log(this.state);
   }
-
-  componentDidMount() {}
   render() {
     const message = this.props.message;
-    const { replies } = this.state;
-    // console.log(replies);
+    const replylist = this.state.replylist;
+    //console.log(replylist);
     return (
       <div
         className={`message-block my-3 d-block ${message.direction}`}
@@ -78,13 +63,15 @@ class Message extends Component {
           <br />
         </p>
         <div className="replies">
-          {/* {this.state.replies.map(reply => {
+          {replylist.map((reply, idx) => {
             return reply.id === message.uuid ? (
-              <p data-id={reply.id}>{reply.body}</p>
+              <p key={`reply-${idx}`} data-id={reply.id}>
+                {reply.body}
+              </p>
             ) : (
               ""
             );
-          })} */}
+          })}
         </div>
         <button className="btn btn-link" onClick={this.showReplyForm}>
           Reply
@@ -93,35 +80,25 @@ class Message extends Component {
           className={`reply-form clearfix ${
             !this.state.showForm ? "d-none" : ""
           }`}
-          onSubmit={e => this.handleSubmitForm({})}
+          onSubmit={this.sendMessage}
         >
           <textarea
             className="form-control"
             name="reply_body"
             cols="50"
-            value={replies.reply.body}
             onChange={e =>
-              this.handleInputChange({
-                reply: { body: e.target.value }
+              this.setState({
+                reply: {
+                  body: e.target.value,
+                  id: this.props.id,
+                  date: formatDateTime(new Date())
+                }
               })
             }
           />
           <input
-            name="msgId"
-            type="hidden"
-            ref={this.msgId}
-            value={this.props.id}
-          />
-          <input
-            name="dateTime"
-            type="hidden"
-            value={formatDateTime(new Date())}
-            ref={this.dateTime}
-          />
-          <input
             type="submit"
             className="btn btn-primary my-3 float-right"
-            onClick={this.handleSubmitForm}
             value="Send"
           />
         </form>
