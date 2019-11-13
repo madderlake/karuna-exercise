@@ -18,35 +18,53 @@ class Message extends Component {
         }
       }
     };
+    this.dateTime = React.createRef();
+    this.msgId = React.createRef();
   }
 
   showReplyForm = e => {
     this.setState({
       showForm: true
     });
-    //   this.hideReplyForms(e);
-    //   const target = e.target;
-    //   const replyForm = target.nextSibling;
-    //   replyForm.classList.remove("d-none");
+    //   //   this.hideReplyForms(e);
+    //   //   const target = e.target;
+    //   //   const replyForm = target.nextSibling;
+    //   //   replyForm.classList.remove("d-none");
   };
   handleSubmitForm = e => {
     e.preventDefault();
-    // const date = this.dateTime.value;
-    // //const msgid = this.msgId.current;
-    // const rplybody = this.replyBody.current;
-    // reply.date = date.value;
-    // reply.body = rplybody.value;
-    // reply.id = this.msgId.current.value;
+
+    //   // const date = this.dateTime.value;
+    //   // //const msgid = this.msgId.current;
+    //   // const rplybody = this.replyBody.current;
+    const date = this.dateTime.current.value;
+    const id = this.msgId.current.value;
+    //   //reply.body = rplybody.value;
+    //   // reply.id = this.msgId.current.value;
     this.setState({
-      replies: [...this.state.replies.reply, reply.body]
+      //replies: [...this.state.replies.reply, reply.body];
     });
-    //this.hideReplyForms(e);
-    console.log(this.state.replies);
+    //   //this.hideReplyForms(e);
+    //   //console.log(this.state.replies);
+    console.log(id);
   };
+
+  handleInputChange(newPartialInput) {
+    this.setState(state => ({
+      ...state,
+      replies: {
+        ...state.replies.reply,
+        ...newPartialInput
+      }
+    }));
+    console.log(this.state);
+  }
 
   componentDidMount() {}
   render() {
     const message = this.props.message;
+    const { replies } = this.state;
+    // console.log(replies);
     return (
       <div
         className={`message-block my-3 d-block ${message.direction}`}
@@ -60,13 +78,13 @@ class Message extends Component {
           <br />
         </p>
         <div className="replies">
-          {this.state.replies.map(reply => {
+          {/* {this.state.replies.map(reply => {
             return reply.id === message.uuid ? (
               <p data-id={reply.id}>{reply.body}</p>
             ) : (
               ""
             );
-          })}
+          })} */}
         </div>
         <button className="btn btn-link" onClick={this.showReplyForm}>
           Reply
@@ -75,17 +93,25 @@ class Message extends Component {
           className={`reply-form clearfix ${
             !this.state.showForm ? "d-none" : ""
           }`}
-          onSubmit={this.handleSubmitForm}
+          onSubmit={e => this.handleSubmitForm({})}
         >
           <textarea
             className="form-control"
-            name="replyBody"
-            ref={this.replyBody}
+            name="reply_body"
             cols="50"
-            //value={this.replyBody.value}
-            onChange={this.handleTextareaChange}
+            value={replies.reply.body}
+            onChange={e =>
+              this.handleInputChange({
+                reply: { body: e.target.value }
+              })
+            }
           />
-          <input name="msgId" type="hidden" value={message.uuid} />
+          <input
+            name="msgId"
+            type="hidden"
+            ref={this.msgId}
+            value={this.props.id}
+          />
           <input
             name="dateTime"
             type="hidden"
